@@ -9,101 +9,7 @@
  *
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-
-typedef struct cell_ cell;
-struct cell_ {
-    char val;
-    cell *next;
-    cell *prev;
-};
-
-static void cell_free(cell *ptr) {
-    if (!ptr) return;
-    cell_free(ptr->next);
-    free(ptr);
-}
-
-static void cell_free_all(cell *ptr) {
-    if (!ptr) return;
-    while (ptr->prev) {
-        ptr = ptr->prev;
-    }
-    cell_free(ptr);
-}
-
-static cell* cell_add(cell *prev) {
-    if (prev->next) cell_free(prev->next);
-    cell *c = malloc(sizeof(cell));
-    c->val = 0;
-    c->prev = prev;
-    prev->next = c;
-    c->next = NULL;
-    return c;
-}
-
-static cell* cell_add_val(cell *prev, char v) {
-    cell *c = cell_add(prev);
-    c->val = v;
-    return c;
-}
-
-static cell* cell_new() {
-    cell *c = malloc(sizeof(cell));
-    c->val = 0;
-    c->prev = NULL;
-    c->next = NULL;
-    return c;
-}
-
-static cell* cell_shift(cell *first) {
-    cell *c = cell_new();
-    c->next = first;
-    first->prev = c;
-    return c;
-}
-
-static void increment(cell **ptr) {
-    (*ptr)->val++;
-}
-static void decrement(cell **ptr) {
-    (*ptr)->val--;
-}
-static void ptr_right(cell **ptr) {
-    if (!(*ptr)->next) cell_add(*ptr);
-    *ptr = (*ptr)->next;
-}
-static void ptr_left(cell **ptr) {
-    if (!(*ptr)->prev) (*ptr)->prev = cell_shift(*ptr);
-    *ptr = (*ptr)->prev;
-}
-static void load_out(cell **ptr) {
-    putchar((*ptr)->val);
-}
-static void load_in(cell **ptr) {
-    (*ptr)->val = getchar();
-}
-static void no_op(cell **ptr) {}
-
-static void (*operationFactory(char c))(cell**) {
-    switch (c) {
-        case '+':
-            return &increment;
-        case '-':
-            return &decrement;
-        case '>':
-            return &ptr_right;
-        case '<':
-            return &ptr_left;
-        case '.':
-            return &load_out;
-        case ',':
-            return &load_in;
-        default:
-            return &no_op;
-    }
-}
+#include <brainf.h>
 
 static int loop(cell *instptr, cell *cellptr);
 
@@ -142,6 +48,7 @@ static int loop(cell *instptr, cell *cellptr) {
 }
 
 int bf_run_file(char filename[]) {
+
 	FILE *p_file = fopen(filename, "r");
 
 	if (!p_file) {

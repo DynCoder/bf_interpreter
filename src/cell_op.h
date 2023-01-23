@@ -9,14 +9,19 @@
  *
  */
 
-#ifndef BRAINF_H_
-#define BRAINF_H_
+#ifndef CELL_OP_H_
+#define CELL_OP_H_
 
 #include <cell.h>
-#include <cell_op.h>
-#include <stdlib.h>
 #include <stdio.h>
 
-int bf_run_file(char *filename);
+void increment(cell **ptr);
+void decrement(cell **ptr);
+void ptr_right(cell **ptr);
+void ptr_left(cell **ptr);
+void load_out(cell **ptr);
+void load_in(cell **ptr);
 
-#endif /* BRAINF_H_ */
+void (*operationFactory(char c))(cell**);
+
+#endif /* CELL_OP_H_ */
