@@ -9,83 +9,90 @@
  *
  */
 
+#define MAX_ITER 512
+
+// #define MEM_DUMP '#'
+// TODO implement memdump command
+
 #include <brainf.h>
 
-static int loop(cell *instptr, cell *cellptr);
-
-static int execute(cell *instptr, cell *cellptr) {
-    cell *i = instptr;
-    int status = 0;
+static void skip(instnode **ptr) {
     char cmd;
-    while (i && !status) {
-        cmd = i->val;
-        i = i->next;
-        if (cmd == EOF) return 1;
+    int n_loop = 1;
+    do {
+        inst_advance(ptr);
+        cmd = (*ptr)->inst;
+        if      (cmd == '[') n_loop++;
+        else if (cmd == ']') n_loop--;
+    } while (n_loop);
+    inst_advance(ptr);
+}
+
+static void loop(instnode *instptr, cell *cellptr) {
+    char cmd;
+    int iter = 0;
+    inst_advance(&instptr);
+    while ((cmd = instptr->inst) != ']') {
+#ifdef MAX_ITER
+        if (iter++ > MAX_ITER) return;
+#endif
         if (cmd == '[') {
-            cell *p_loop = cell_new(), *m;
-            m = p_loop;
-            while (i) {
-                cmd = i->val;
-                i = i->next;
-                if (cmd == EOF) status++;
-                m = cell_add_val(m, cmd);
-            }
-            status += loop(p_loop, cellptr);
-            cell_free_all(p_loop);
+            if (cellptr->val != 0) loop(instptr, cellptr);
+            else                   skip(&instptr);
         } else {
             (*operationFactory(cmd))(&cellptr);
+            inst_advance(&instptr);
         }
     }
-    return 0;
 }
 
-static int loop(cell *instptr, cell *cellptr) {
-    int status = 0;
-    while (cellptr->val && !status) {
-        status = execute(instptr, cellptr);
+void bf_run(instnode *instptr) {
+
+    cell *cellptr = cell_new();
+
+    loop(instptr, cellptr);
+
+    cell_free_all(cellptr);
+
+}
+
+void bf_close(instnode *instptr) {
+    inst_free(instptr);
+}
+
+instnode *bf_compile(char *filename) {
+
+    FILE *p_file = fopen(filename, "r");
+
+    if (!p_file) {
+        printf("Problem trying to open file\n");
+        fclose(p_file);
+        return NULL;
     }
-    return status;
-}
 
-int bf_run_file(char filename[]) {
+    instnode *inst_start = inst_new(' ');
+    instnode *i = inst_start;
 
-	FILE *p_file = fopen(filename, "r");
+    int n_loop = 0;
+    char cmd;
 
-	if (!p_file) {
-		printf("Problem trying to open file\n");
-		return 1;
-	}
+    while ((cmd = fgetc(p_file)) != EOF && n_loop >= 0) {
+        if (cmd == '[')
+            n_loop++;
+        else if (cmd == ']')
+            n_loop--;
+        inst_append(i, cmd);
+        inst_advance(&i);
+    }
+    inst_append(i, ']');
 
-	int status = 0;
-	cell *p_cell = cell_new();
+    fclose(p_file);
 
-	char cmd;
-	while ((cmd = fgetc(p_file)) != EOF && !status) {
-		if (cmd == '[') {
-			cell *p_loop = cell_new(), *m;
-			m = p_loop;
-			int n = 1;
-			while (n) {
-				if ((cmd = fgetc(p_file)) == ']') n--;
-				if (cmd == '[') n++;
-				if (cmd == EOF) status++;
-				m = cell_add_val(m, cmd);
-			}
-			status += loop(p_loop, p_cell);
-			cell_free_all(p_loop);
-		} else if (cmd == ']') {
-			printf("Unopened closing bracket encountered\n");
-			status++;
-		} else {
-			(*operationFactory(cmd))(&p_cell);
-		}
-	}
+    if (n_loop != 0) {
+        inst_free(inst_start);
+        return NULL;
+    }
 
-	fclose(p_file);
-	cell_free_all(p_cell);
-
-	return status;
+    return inst_start;
 
 }
-
-

@@ -14,9 +14,12 @@
 
 #include <cell.h>
 #include <cell_op.h>
+#include <inst_node.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-int bf_run_file(char *filename);
+void bf_run(instnode *instptr);
+void bf_close(instnode *instptr);
+instnode *bf_compile(char *filename);
 
 #endif /* BRAINF_H_ */

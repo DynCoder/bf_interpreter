@@ -16,11 +16,15 @@ int main(int argc, char *argv[]) {
 
     if (argc < 2) {
         printf("No file passed\n");
-        return 1;
+        return 0;
     }
 
-    int status = bf_run_file(argv[1]);
+    instnode *instructions = bf_compile(argv[1]);
+    if (!instructions) return 1; // Fail
 
-    return status;
+    bf_run(instructions);
+
+    bf_close(instructions);
+    return 0;
 
 }

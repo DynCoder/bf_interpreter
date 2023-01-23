@@ -25,7 +25,7 @@ void cell_free_all(cell *ptr) {
     cell_free(ptr);
 }
 
-cell* cell_add(cell *prev) {
+cell *cell_add(cell *prev) {
     if (prev->next) cell_free(prev->next);
     cell *c = malloc(sizeof(cell));
     c->val = 0;
@@ -35,20 +35,20 @@ cell* cell_add(cell *prev) {
     return c;
 }
 
-cell* cell_add_val(cell *prev, char v) {
+cell *cell_add_val(cell *prev, char v) {
     cell *c = cell_add(prev);
     c->val = v;
     return c;
 }
 
-cell* cell_shift(cell *first) {
+cell *cell_shift(cell *first) {
     cell *c = cell_new();
     c->next = first;
     first->prev = c;
     return c;
 }
 
-cell* cell_new() {
+cell *cell_new() {
     cell *c = malloc(sizeof(cell));
     c->val = 0;
     c->prev = NULL;
