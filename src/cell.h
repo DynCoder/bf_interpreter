@@ -14,10 +14,10 @@
 
 #include <stdlib.h>
 
-typedef struct cell_ {
+typedef struct _cell {
     char val;
-    struct cell_ *next;
-    struct cell_ *prev;
+    struct _cell *next;
+    struct _cell *prev;
 } cell;
 
 void cell_free(cell *ptr);

@@ -14,11 +14,10 @@
 
 #include <stdlib.h>
 
-typedef struct inst_ instnode;
-struct inst_ {
+typedef struct _instnode {
     char inst;
-    instnode *next;
-};
+    struct _instnode *next;
+} instnode;
 
 instnode *inst_new(char c);
 void inst_append(instnode *ptr, char c);
