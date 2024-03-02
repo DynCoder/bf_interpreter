@@ -5,7 +5,7 @@
  * This file is published under the GPLv3 license.
  * A copy of GPLv3 is provided in the project's original repository:
  *
- * https://github.com/Joshua260403/bf_interpreter
+ * https://github.com/DynCoder/bf_interpreter
  *
  */
 
